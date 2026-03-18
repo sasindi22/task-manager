@@ -1,0 +1,115 @@
+<div class="main-body">
+  <div class="glass-box">
+
+    <div class="header">
+      <h1 class="logo">TASKER</h1>
+      <span class="date-time">{{ today | date:'medium' }}</span>
+    </div>
+
+    <div class="search-section">
+      <div class="search-wrapper">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input type="text" #searchInput placeholder="search by keywords..." class="search-input">
+      </div>
+
+      <select #statusSort class="status-sort">
+        <option value="">▼ status sort</option>
+        <option value="TO_DO">To Do</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="DONE">Done</option>
+      </select>
+
+      <button class="btn-search" (click)="performSearch(searchInput.value, statusSort.value)">
+        search
+      </button>
+    </div>
+
+    <div class="task-container">
+      <div *ngFor="let task of tasks" class="task-card" [style.border-left-color]="getStatusColor(task.status)">
+
+        <div class="task-info">
+          <h3>{{ task.title }}</h3>
+          <p>{{ task.description }}</p>
+          <small>{{ task.createdAt | date:'short' }}</small>
+        </div>
+
+        <div class="task-controls">
+          <div class="status-circles">
+            <span class="circle todo" title="To Do" [class.active]="task.status === 'TO_DO'"
+              (click)="updateStatus(task, 'TO_DO')">
+            </span>
+
+            <span class="circle progress" title="In Progress" [class.active]="task.status === 'IN_PROGRESS'"
+              (click)="updateStatus(task, 'IN_PROGRESS')">
+            </span>
+
+            <span class="circle done" title="Done" [class.active]="task.status === 'DONE'"
+              (click)="updateStatus(task, 'DONE')">
+            </span>
+          </div>
+
+          <div class="action-btns">
+            <button class="icon-btn edit-btn" (click)="openEditModal(task)">
+              <span class="material-symbols-outlined">edit_note</span>
+            </button>
+            <button class="icon-btn delete-btn" (click)="deleteTask(task.id!)">
+              <span class="material-symbols-outlined">delete_forever</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="fab-btn" (click)="openModal()">+ new task</button>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-card">
+      <button class="close-btn" (click)="closeModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+      <div class="modal-header">
+        <h2 class="modal-logo">{{ taskForm.get('id')?.value ? 'edit task' : 'new task' }}</h2>
+      </div>
+
+      <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+        <div class="form-group">
+          <label>title</label>
+          <input type="text" formControlName="title" placeholder="task title here..." class="modal-input">
+        </div>
+
+        <div class="form-group">
+          <label>description</label>
+          <textarea formControlName="description" placeholder="add some details..." class="modal-input"
+            rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>status</label>
+          <div class="status-selector-row">
+            <div class="status-option" (click)="taskForm.get('status')?.setValue('TO_DO')"
+              [class.selected]="taskForm.get('status')?.value === 'TO_DO'">
+              <span class="sel-circle todo"></span> <span>to do</span>
+            </div>
+            <div class="status-option" (click)="taskForm.get('status')?.setValue('IN_PROGRESS')"
+              [class.selected]="taskForm.get('status')?.value === 'IN_PROGRESS'">
+              <span class="sel-circle progress"></span> <span>processing</span>
+            </div>
+            <div class="status-option" (click)="taskForm.get('status')?.setValue('DONE')"
+              [class.selected]="taskForm.get('status')?.value === 'DONE'">
+              <span class="sel-circle done"></span> <span>done</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn-modal-action" [disabled]="taskForm.invalid">
+            {{ taskForm.get('id')?.value ? 'update task' : 'save task' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
